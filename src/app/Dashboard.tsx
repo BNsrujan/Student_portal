@@ -1,9 +1,9 @@
-import { useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-
+import { branches, semesters } from '@/constent';
 import {
     Select,
     SelectContent,
@@ -12,6 +12,9 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const formSchema = z.object({
     semester: z.string().min(1, 'Please select a semester'),
@@ -22,34 +25,50 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export function Dashboard() {
+export default function Dashboard() {
+    const [message, setMessage] = useState("");
+    const navigate = useNavigate();
+
     const { handleSubmit, setValue, watch } = useForm<FormData>({
         resolver: zodResolver(formSchema),
     });
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/login");
+        } else {
+            axios.get("/api/v1/student/dashboard", {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+                .then((response) => setMessage(response.data.message))
+                .catch((error) => {
+                    if (error.response?.status === 401) {
+                        localStorage.removeItem("token");
+                        navigate("/login");
+                    }
+                });
+        }
+    }, [navigate]);
 
     const selectedBranch = watch('branch');
     const selectedSemester = watch('semester');
 
     const onSubmit = (data: FormData) => {
         console.log('Form submitted:', data);
-        // Here you would typically send the data to your backend
-        // fetch('/api/submit', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(data),
-        // });
+        fetch('/api/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
     };
 
-    const branches = ['CSE', 'ECE', 'ME', 'CE', 'EE'];
-    const semesters = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
     const getSections = (branch: string) => {
-        // You can customize this based on your requirements
         return ['A', 'B', 'C'];
     };
 
     const getClassrooms = (section: string) => {
-        // You can customize this based on your requirements
         return ['101', '102', '103', '104', '105'];
     };
 
@@ -63,7 +82,7 @@ export function Dashboard() {
             >
                 <motion.h1
                     className="text-3xl font-bold text-center mb-8"
-                    whileHover={{ scale: 1.05 }}
+
                 >
                     Classroom Dashboard
                 </motion.h1>
@@ -74,6 +93,7 @@ export function Dashboard() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
                 >
+                    {message}
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         <div className="space-y-2">
                             <Label htmlFor="semester">Semester</Label>
@@ -142,7 +162,7 @@ export function Dashboard() {
                                 </Select>
                             </div>
                         )}
-
+                        <Button type="button" className='w-full' onClick={() => navigate("/quiz")}>Create the Assment</Button>
                         <Button type="submit" className="w-full">
                             Submit
                         </Button>

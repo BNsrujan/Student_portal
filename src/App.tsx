@@ -12,8 +12,7 @@ import { useThemeStore } from "@/store/themeStore"
 import QuizNavbar from "@/components/Navbar"
 import Question from "@/components/Question"
 import QuestionList from "@/components/QuestionList"
-import Dashboard from "./app/Home"
-
+import Dashboard from "@/app/Dashboard"
 
 function App() {
   const { isDark } = useThemeStore()

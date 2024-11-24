@@ -2,21 +2,23 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
+import { Label } from "@radix-ui/react-label";
+import { Input } from "@/components/ui/input";
 function Login() {
-    const [email, setEmail] = useState("");
+    const [usn, setUsn] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await axios.post("/api/v1/student/login", { email, password });
+            const response = await axios.post("/api/v1/student/login", { usn, password });
             localStorage.setItem("token", response.data.token);
             navigate("/dashboard");
         } catch (err) {
-            setError("Invalid email or password");
+            setError("Invalid USN or password");
         }
     };
 
@@ -36,23 +38,23 @@ function Login() {
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="rounded-md shadow-sm space-y-4">
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Email address
-                            </label>
-                            <input
-                                id="email"
-                                type="email"
+                            <Label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                USN
+                            </Label>
+                            <Input
+                                id="USN"
+                                type="text"
                                 required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                value={usn}
+                                onChange={(e) => setUsn(e.target.value)}
                                 className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <Label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Password
-                            </label>
-                            <input
+                            </Label>
+                            <Input
                                 id="password"
                                 type="password"
                                 required
