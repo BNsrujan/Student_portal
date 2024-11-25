@@ -1,15 +1,17 @@
 export interface Question {
-  id: number;
+  id: string;
   prompt: string;
   options: string[];
+  type: 'multiple-choice' | 'checkbox' | 'short-answer' | 'paragraph';
+  required: boolean;
 }
 
 export interface QuizState {
   currentQuestionIndex: number;
   questions: Question[];
-  answers: Map<number, number>;
+  answers: Map<string, number>;
   timeLeft: number;
-  setAnswer: (questionId: number, answer: number) => void;
+  setAnswer: (questionId: string, answer: number) => void;
   nextQuestion: () => void;
   previousQuestion: () => void;
   setTimeLeft: (time: number) => void;

@@ -55,10 +55,13 @@ function SignUp() {
         }
 
         try {
-            await axios.post("/api/v1/student/register");
+            await axios.post("/api/v1/student/register", formData, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
             navigate("/login");
         } catch (err) {
-            // setError(err.response?.data?.message || "Registration failed. Please try again.");
             console.log(err)
         }
     };

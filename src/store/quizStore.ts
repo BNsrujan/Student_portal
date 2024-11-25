@@ -3,19 +3,25 @@ import { Question, QuizState } from '@/types/quiz';
 
 const sampleQuestions: Question[] = [
   {
-    id: 1,
+    id: "1",
     prompt: "Which of the following is a correct syntax to declare a pointer in C?",
-    options: ["int ptr;", "int *ptr;", "ptr int;", "*int ptr;"]
+    options: ["int ptr;", "int *ptr;", "ptr int;", "*int ptr;"],
+    type: "multiple-choice",
+    required: true
   },
   {
-    id: 2,
+    id: "2",
     prompt: "What is the output of the expression (5 / 2) in C?",
-    options: ["2.5", "2", "5", "Error"]
+    options: ["2.5", "2", "5", "Error"],
+    type: "multiple-choice",
+    required: true
   },
   {
-    id: 3,
+    id: "3",
     prompt: "Which keyword is used to prevent a variable from being modified in C?",
-    options: ["static", "volatile", "const", "register"]
+    options: ["static", "volatile", "const", "register"],
+    type: "multiple-choice",
+    required: true
   }
 ];
 
@@ -26,7 +32,7 @@ export const useQuizStore = create<QuizState>((set) => ({
   answers: new Map(),
   timeLeft: 120,
 
-  setAnswer: (questionId: number, answer: number) =>
+  setAnswer: (questionId: string, answer: number) =>
     set((state) => {
       const newAnswers = new Map(state.answers);
       newAnswers.set(questionId, answer);

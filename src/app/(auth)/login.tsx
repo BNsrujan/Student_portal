@@ -1,24 +1,63 @@
 import { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
+import { Alert } from "@/components/toast"; // Reusable alert component
+import Cookies from "js-cookies"
 function Login() {
-    const [usn, setUsn] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+    const [usn, setUsn] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
+    interface LoginResponse {
+        token: string;
+        message?: string;
+    }
+
+    interface ApiError {
+        message: string;
+        status: number;
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
+        setLoading(true);
         try {
-            const response = await axios.post("/api/v1/student/login", { usn, password });
-            localStorage.setItem("token", response.data.token);
-            navigate("/dashboard");
-        } catch (err) {
-            setError("Invalid USN or password");
+            const response = await axios.post<LoginResponse>(
+                "/api/v1/student/login",
+                { usn, password },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            const { token } = response.data;
+            if (token) {
+                Cookies.set("token", response.data.token, {
+                    expires: 1,
+                    secure: true,
+                    sameSite: "Strict",
+                })
+                navigate("/dashboard");
+            } else {
+                setError("Invalid USN or password");
+            }
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                const apiError = err as AxiosError<ApiError>;
+                setError(apiError.response?.data?.message || "Invalid USN or password, try again");
+            } else {
+                setError("An unexpected error occurred");
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -30,19 +69,15 @@ function Login() {
                         Sign in to your account
                     </h2>
                 </div>
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <span className="block sm:inline">{error}</span>
-                    </div>
-                )}
+                {error && <Alert type="error" message={error} />}
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="rounded-md shadow-sm space-y-4">
                         <div>
-                            <Label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <Label htmlFor="usn" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 USN
                             </Label>
                             <Input
-                                id="USN"
+                                id="usn"
                                 type="text"
                                 required
                                 value={usn}
@@ -68,9 +103,10 @@ function Login() {
                     <div>
                         <Button
                             type="submit"
+                            disabled={loading}
                             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
-                            Sign in
+                            {loading ? "Signing in..." : "Sign in"}
                         </Button>
                     </div>
                 </form>
