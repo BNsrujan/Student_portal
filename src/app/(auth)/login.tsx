@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
 import { Alert } from "@/components/toast"; // Reusable alert component
-import Cookies from "js-cookies"
+// import Cookies from "js-cookie"
 function Login() {
     const [usn, setUsn] = useState<string>("");
     const [password, setPassword] = useState<string>("");
@@ -37,18 +37,19 @@ function Login() {
                     },
                 }
             );
-
-            const { token } = response.data;
-            if (token) {
-                Cookies.set("token", response.data.token, {
-                    expires: 1,
-                    secure: true,
-                    sameSite: "Strict",
-                })
-                navigate("/dashboard");
-            } else {
-                setError("Invalid USN or password");
-            }
+            const data = response.data;
+            console.log(data)
+            // const { token } = response.data;
+            // if (token) {
+            //     Cookies.set("token", response.data.token, {
+            //         expires: 1,
+            //         secure: true,
+            //         sameSite: "Strict",
+            //     })
+            //     navigate("/dashboard");
+            // } else {
+            //     setError("Invalid USN or password");
+            // }
         } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
                 const apiError = err as AxiosError<ApiError>;

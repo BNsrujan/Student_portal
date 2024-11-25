@@ -55,15 +55,18 @@ function SignUp() {
         }
 
         try {
-            await axios.post("/api/v1/student/register", formData, {
+            const response = await axios.post("/api/v1/student/register", formData, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
             navigate("/login");
+            const data = response.data;
+            console.log(data);
         } catch (err) {
             console.log(err)
         }
+
     };
 
     return (
