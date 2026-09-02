@@ -1,0 +1,7 @@
+# Consolidates author identities across the three merged repos.
+# Display-only: `git shortlog`/`git log` honour this; no commits are rewritten.
+
+BNsrujan <srujanbn123@gmail.com> <135449764+BNsrujan@users.noreply.github.com>
+BNsrujan <srujanbn123@gmail.com> <BNsrujan>
+
+Ashwinigadad <ashwinigadad3@gmail.com> <120187851+Ashwinigadad@users.noreply.github.com>
