@@ -77,13 +77,20 @@ cd admin && npm install && npm run dev
 
 These predate the merge and are not yet fixed:
 
-- **The pinned backend commit predates all backend fixes.** `d8e62b6` still has
-  `db/db.js` exporting nothing (so every `pool.query()` throws `TypeError`),
-  no routers mounted in `server.js` (the live endpoints are inline mocks that
-  never touch the database), ESM `export` statements in a CommonJS package, and
-  route files missing `module.exports`. Fixes for all of these exist at
-  `0fb8d77` on [the fork](https://github.com/BNsrujan/Student_Portal_Backend)
-  and need a PR upstream before they can be pinned here.
+- **The pinned backend serves no API at all.** At `d8e62b6` every
+  `app.use("/api/...")` line in `server.js` is commented out, so the server
+  starts and 404s every request. On top of that: `db/db.js` exports nothing
+  (every `pool.query()` throws `TypeError`), `healthcheck.controller.js` and
+  `auth.middleware.js` use ESM `export` in a CommonJS package (SyntaxError on
+  require), all three route files omit `module.exports`, and
+  `login.route.js` registers its handler at `/register`.
+- **CORS and ports are misconfigured at the pin.** `server.js` allows origin
+  `http://localhost:3000`, but the frontends run on 5173 and 5174; its port
+  fallback is 7000 while both Vite proxies target 5000. `express.urlencoded`
+  and `cookieParser` are commented out.
+- Fixes for all of the above exist at `0fb8d77` on
+  [the fork](https://github.com/BNsrujan/Student_Portal_Backend) and need a PR
+  upstream before they can be pinned here.
 - **`.env` is tracked at the pinned commit** and contains a live Neon
   connection string. Rotate that credential.
 - **No database schema exists anywhere in the repo.** There is no `.sql` file or
