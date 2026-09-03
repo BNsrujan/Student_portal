@@ -12,9 +12,14 @@ with full commit history and author attribution preserved.
 | `backend/` | REST API (**submodule**) | Express + Neon Postgres     | 5000     |
 
 `student/` and `admin/` live directly in this repo. **`backend/` is a git
-submodule** pointing at [BNsrujan/Student_Portal_Backend](https://github.com/BNsrujan/Student_Portal_Backend),
-which is a fork of the upstream backend — that keeps the fork relationship and
-its PR flow intact.
+submodule** pointing at the upstream
+[Ashwinigadad/Student_Portal_Backend](https://github.com/Ashwinigadad/Student_Portal_Backend),
+pinned at `d8e62b6`.
+
+> **The submodule is read-only for this project.** The pointer targets a
+> repository we do not own, so backend changes cannot be pushed from here.
+> They have to go through a PR to that repo, or through the fork at
+> [BNsrujan/Student_Portal_Backend](https://github.com/BNsrujan/Student_Portal_Backend).
 
 Each folder is a self-contained npm package with its own `package.json` and
 lockfile. There is no root workspace yet — install and run each separately.
@@ -32,21 +37,25 @@ git submodule update --init --recursive
 
 ## Working with the backend submodule
 
-`backend/` tracks a specific commit, not a branch. Commits made inside it belong
-to the backend repo and must be pushed there, then the pointer bumped here:
+`backend/` tracks a specific commit of a repository this project does not own,
+so there is no direct push path. To change backend code, work in the fork and
+open a PR upstream:
 
 ```bash
-cd backend
-git checkout main            # submodules land detached by default
-# ...edit, commit...
-git push origin main
+git clone https://github.com/BNsrujan/Student_Portal_Backend.git
+# ...edit, commit, push, then open a PR to Ashwinigadad/Student_Portal_Backend
+```
 
-cd ..
-git add backend              # records the new pointer
+Once a PR merges upstream, advance the pointer here:
+
+```bash
+git submodule update --remote backend
+git add backend
 git commit -m "chore: bump backend submodule"
 ```
 
-To pull upstream changes into the pointer: `git submodule update --remote backend`
+A fixed branch already exists at `0fb8d77` on the fork (working pg Pool, routers
+mounted, CommonJS errors resolved). It is **not** pinned here — see Known issues.
 
 ## Running
 
@@ -68,6 +77,15 @@ cd admin && npm install && npm run dev
 
 These predate the merge and are not yet fixed:
 
+- **The pinned backend commit predates all backend fixes.** `d8e62b6` still has
+  `db/db.js` exporting nothing (so every `pool.query()` throws `TypeError`),
+  no routers mounted in `server.js` (the live endpoints are inline mocks that
+  never touch the database), ESM `export` statements in a CommonJS package, and
+  route files missing `module.exports`. Fixes for all of these exist at
+  `0fb8d77` on [the fork](https://github.com/BNsrujan/Student_Portal_Backend)
+  and need a PR upstream before they can be pinned here.
+- **`.env` is tracked at the pinned commit** and contains a live Neon
+  connection string. Rotate that credential.
 - **No database schema exists anywhere in the repo.** There is no `.sql` file or
   migration, and nothing creates the `users` table the controllers query. The
   backend cannot work until someone defines it.
@@ -79,8 +97,6 @@ These predate the merge and are not yet fixed:
 - **Auth middleware is a stub.** `backend/middlewares/auth.middleware.js` returns
   501 and is not mounted; `backend/middlewares/auth.js` and
   `backend/models/user.model.js` are empty files.
-- **The backend fixes are untested against a live database**, since no schema
-  exists to test against.
 
 ## History
 
