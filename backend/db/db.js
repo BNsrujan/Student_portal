@@ -1,13 +1,20 @@
 require("dotenv").config();
 
+const { Pool } = require("pg");
 
-const { neon } = require('@neondatabase/serverless');
-
-const sql = neon(process.env.PG_URI);
-
-async function getPgVersion() {
-  const result = await sql`SELECT version()`;
-  console.log(result[0]);
+if (!process.env.PG_URI) {
+  throw new Error(
+    "PG_URI is not set. Copy .env.sample to .env and fill in the connection string."
+  );
 }
 
-getPgVersion();
+// The controllers call pool.query(text, params), which is the node-postgres
+// API, so this must be a pg Pool. (It previously built a @neondatabase/serverless
+// tagged-template client and exported nothing at all.)
+const pool = new Pool({ connectionString: process.env.PG_URI });
+
+pool.on("error", (err) => {
+  console.error("Unexpected error on idle postgres client:", err);
+});
+
+module.exports = pool;

@@ -1,7 +1,8 @@
-const express=require('express');
-const healthcheck=require('../controllers/healthcheck.controller.js');
+const express = require("express");
+const healthcheck = require("../controllers/healthcheck.controller.js");
+
 const router = express.Router();
 
-router.post("/healthcheck",healthcheck);
+router.get("/healthcheck", healthcheck);
 
-export default router;
+module.exports = router;
